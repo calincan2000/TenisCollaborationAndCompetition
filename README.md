@@ -1,5 +1,6 @@
 ### Tennis - reinforcement learning PPO implementation
 ============
+![Tenis from https://unity3d.com/machine-learning](https://github.com/calincan2000/TenisCollaborationAndCompetition/blob/master/image2-2.gif)
 
 TenisCollaborationAndCompetition is a reinforcement learning algorithm based Multi-agent actor-critic Deep Deterministic Policy Gradient MADDPG algorithm. The environment is provided by Udacity as a part of deep reinfocement learning nanodegree. In this environment, two agents are playing [tennis](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#tennis) with aim to reach average score of 0.5 over 100 episodes taking maximum score of the episode.
 
