@@ -116,8 +116,8 @@ for i in range(5):                                         # play game for 5 epi
 
     Total score (averaged over agents) this episode: -0.004999999888241291
     Total score (averaged over agents) this episode: -0.004999999888241291
-    Total score (averaged over agents) this episode: -0.004999999888241291
-    Total score (averaged over agents) this episode: -0.004999999888241291
+    Total score (averaged over agents) this episode: 0.09500000160187483
+    Total score (averaged over agents) this episode: 0.04500000085681677
     Total score (averaged over agents) this episode: -0.004999999888241291
 
 
@@ -159,7 +159,7 @@ from unityagents import UnityEnvironment
 
 ### 4.2 Setting parameters
 
- Hyperparameters
+# The chosen hyperparameters Hyperparameters
  
 BUFFER_SIZE = int(4e5)          # Replay buffer size </br>
 
@@ -197,7 +197,12 @@ EPSILON_DECAY = 1e-6 </br>
 
 
 ### 4.3 Training loop
-class Actor(nn.Module): """Actor (Policy) Model."""
+
+# Model architecture
+Similar to single-agent Actor Critic architecture, each agent has it’s own actor and critic network. The actor network takes in the current state of agent and output a recommended action for that agent. However the critic part is slightly different from ordinary single-agent DDPG. Here the critic network of each agent has full visibility on the environment. It not only takes in the observation and action of that particular agent, but also observations and actions of all other agents as well. Critic network has much higher visibility on what is happening while actor network can only access to the observation information of the respective agent. The output of the critic network is, nevertheless, still the Q value estimated given a full observation input(all agents) and a full action input(all agents). The output of the actor network is a recommended action for that particular agent.
+
+
+# class Actor(nn.Module): """Actor (Policy) Model."""
 
 def __init__(self, state_size, action_size, seed, fc1_units=400, fc2_units=300):
     """Initialize parameters and build model.
@@ -229,7 +234,7 @@ def forward(self, state):
     return torch.tanh(self.fc3(x))
 
 
-class Critic(nn.Module): """Critic (Value) Model."""
+# class Critic(nn.Module): """Critic (Value) Model."""
 
 def __init__(self, state_size, action_size, seed, fc1_units=400, fc2_units=300):
     """Initialize parameters and build model.
@@ -260,6 +265,11 @@ def forward(self, state, action):
     x = torch.cat((xs, action), dim=1)
     x = F.relu(self.fc2(x))
     return self.fc3(x)
+
+
+```python
+
+```
 
 ### 4.4 Train the Agent with MADDPG
 
@@ -316,7 +326,9 @@ def ddpg(n_episodes=2500, max_t=1000, print_every=10):
                   i_episode, round(duration), mean_scores[-1], moving_avgs[-1]))
                   
         if moving_avgs[-1] >= 0.5:
-            print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, moving_avgs[-1]))            
+            print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode-100, moving_avgs[-1]))  
+            torch.save(agent.actor_local.state_dict(), 'checkpoint_actor.pth')
+            torch.save(agent.critic_local.state_dict(), 'checkpoint_critic.pth')
             break
             
     return mean_scores, moving_avgs
@@ -348,12 +360,12 @@ with active_session():
     Episode 180 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 190 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 200 (1s)	Mean: -0.0	Moving Avg: -0.0
-    Episode 210 (1s)	Mean: -0.0	Moving Avg: -0.0
+    Episode 210 (1s)	Mean: 0.0	Moving Avg: -0.0
     Episode 220 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 230 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 240 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 250 (1s)	Mean: -0.0	Moving Avg: -0.0
-    Episode 260 (1s)	Mean: 0.0	Moving Avg: -0.0
+    Episode 260 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 270 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 280 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 290 (1s)	Mean: -0.0	Moving Avg: -0.0
@@ -369,40 +381,45 @@ with active_session():
     Episode 390 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 400 (1s)	Mean: -0.0	Moving Avg: -0.0
     Episode 410 (1s)	Mean: -0.0	Moving Avg: -0.0
-    Episode 420 (1s)	Mean: -0.0	Moving Avg: 0.0
-    Episode 430 (1s)	Mean: -0.0	Moving Avg: 0.0
-    Episode 440 (1s)	Mean: -0.0	Moving Avg: 0.0
-    Episode 450 (1s)	Mean: 0.0	Moving Avg: 0.0
-    Episode 460 (1s)	Mean: 0.0	Moving Avg: 0.0
-    Episode 470 (1s)	Mean: 0.0	Moving Avg: 0.0
-    Episode 480 (2s)	Mean: 0.1	Moving Avg: 0.0
+    Episode 420 (2s)	Mean: 0.1	Moving Avg: -0.0
+    Episode 430 (1s)	Mean: 0.0	Moving Avg: -0.0
+    Episode 440 (1s)	Mean: -0.0	Moving Avg: -0.0
+    Episode 450 (3s)	Mean: 0.1	Moving Avg: 0.0
+    Episode 460 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 470 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 480 (1s)	Mean: 0.0	Moving Avg: 0.0
     Episode 490 (1s)	Mean: 0.0	Moving Avg: 0.0
-    Episode 500 (4s)	Mean: 0.2	Moving Avg: 0.0
+    Episode 500 (1s)	Mean: -0.0	Moving Avg: 0.0
     Episode 510 (1s)	Mean: 0.0	Moving Avg: 0.0
-    Episode 520 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 530 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 540 (2s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 550 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 560 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 570 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 580 (6s)	Mean: 0.4	Moving Avg: 0.1
-    Episode 590 (3s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 600 (2s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 610 (2s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 620 (2s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 630 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 640 (1s)	Mean: 0.0	Moving Avg: 0.1
-    Episode 650 (3s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 660 (2s)	Mean: 0.1	Moving Avg: 0.1
-    Episode 670 (19s)	Mean: 1.4	Moving Avg: 0.1
-    Episode 680 (20s)	Mean: 1.5	Moving Avg: 0.2
-    Episode 690 (5s)	Mean: 0.3	Moving Avg: 0.3
-    Episode 700 (1s)	Mean: 0.0	Moving Avg: 0.3
-    Episode 710 (2s)	Mean: 0.0	Moving Avg: 0.3
-    Episode 720 (10s)	Mean: 0.7	Moving Avg: 0.3
-    Episode 730 (33s)	Mean: 2.6	Moving Avg: 0.4
+    Episode 520 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 530 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 540 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 550 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 560 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 570 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 580 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 590 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 600 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 610 (1s)	Mean: -0.0	Moving Avg: 0.0
+    Episode 620 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 630 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 640 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 650 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 660 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 670 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 680 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 690 (1s)	Mean: 0.0	Moving Avg: 0.0
+    Episode 700 (1s)	Mean: 0.0	Moving Avg: 0.1
+    Episode 710 (1s)	Mean: 0.0	Moving Avg: 0.1
+    Episode 720 (1s)	Mean: 0.0	Moving Avg: 0.1
+    Episode 730 (2s)	Mean: 0.1	Moving Avg: 0.1
+    Episode 740 (2s)	Mean: 0.1	Moving Avg: 0.1
+    Episode 750 (1s)	Mean: 0.0	Moving Avg: 0.1
+    Episode 760 (32s)	Mean: 2.7	Moving Avg: 0.2
+    Episode 770 (2s)	Mean: 0.1	Moving Avg: 0.3
+    Episode 780 (6s)	Mean: 0.4	Moving Avg: 0.5
     
-    Environment solved in 636 episodes!	Average Score: 0.50
+    Environment solved in 685 episodes!	Average Score: 0.51
 
 
 ### 4.4 Reward Plot
@@ -421,7 +438,7 @@ plt.show()
 ```
 
 
-![png](output_21_0.png)
+![png](output_22_0.png)
 
 
 When finished, you can close the environment.
